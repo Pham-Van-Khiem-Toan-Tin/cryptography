@@ -67,7 +67,7 @@ def generate_subkeys(key):
     subkeys = []
     
     # Dịch vòng và tạo khóa con
-    shift_values = [1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2]
+    shift_values = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
     for i in range(16):
         # Dịch vòng C và D
         shift = shift_values[i]
@@ -92,23 +92,25 @@ def encrypt_data(data, key):
     data_bin = string_to_bin(data)
     print("data_bin: ", data_bin)
     # Hoán vị ban đầu
-    data_ip = permute_IP(data_bin)
+    num_blocks = len(data_bin) // 64  # Số lượng khối 64 bit
     
-    # Chia thành L0 và R0
-    L0, R0 = split_LR(data_ip)
-    
-    # In kết quả sau khi hoán vị
-    print("Chuỗi nhị phân sau hoán vị IP:", data_ip)
-    print("L0:", L0)
-    print("R0:", R0)
-    
-    # Sinh khóa con từ khóa bí mật
+    for i in range(num_blocks):
+        # Lấy khối 64 bit hiện tại
+        block = data_bin[i * 64: (i + 1) * 64]
+        
+        # Hoán vị ban đầu (IP)
+        block_ip = permute_IP(block)
+        
+        # Chia khối thành L0 và R0
+        L0, R0 = split_LR(block_ip)
+        
+        # In kết quả sau khi hoán vị
+        print(f"Khối {i + 1}: {block}")
+        print("Khối sau hoán vị IP:", block_ip)
+        print("L0:", L0)
+        print("R0:", R0)
     subkeys = generate_subkeys(key)
-    print("\nCác khóa con sinh ra từ khóa bí mật:")
-    for i, subkey in enumerate(subkeys, 1):
-        print(f"K{i}: {subkey}")
-
-
+    print("Khóa con:", subkeys)
 
 
 def main():
